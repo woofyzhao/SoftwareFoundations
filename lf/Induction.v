@@ -279,7 +279,8 @@ Qed.
     Briefly explain the difference between the tactics [destruct]
     and [induction].
 
-(* FILL IN HERE *)
+(* [destruct] applies to any type while induction only applies to nat 
+with O as base case and Sn' as hypothesis case *)
 *)
 
 (* Do not modify the following line: *)
@@ -477,7 +478,16 @@ Proof.
 
     Theorem: Addition is commutative.
 
-    Proof: (* FILL IN HERE *)
+    Proof: We proove that  For any [n], [m], n + m = m + n by induction on [n].
+    - First, suppose [n = 0]. We must show that
+      0 + m = m + 0. 
+      This follows from the definition of [+] and the lemma m + 0 = 0.
+    - Next, suppose [n = S n'], where
+      n' + m = m + n'
+      We must now show that Sn' + m = m + Sn'.
+      By the definition of [+], this follows from
+      S(n' + m) = m + Sn' which by the induction hypothesis follows from
+      S(m + n') = m + Sn' which is immediate from the lemma add_n_Sm. _Qed_. 
 *)
 
 (* Do not modify the following line: *)
@@ -492,7 +502,27 @@ Definition manual_grade_for_add_comm_informal : option (nat*string) := None.
 
     Theorem: [(n =? n) = true] for any [n].
 
-    Proof: (* FILL IN HERE *)
+    _Proof_: By induction on [n].
+
+    - First, suppose [n = 0].  We must show that
+
+        (0 =? 0) = true.
+
+      This follows directly from the definition of [=?].
+
+    - Next, suppose [n = S n'], where
+
+        (n' =? n') = true.
+
+      We must now show that
+
+        ((S n') =? (S n')) = true
+
+      By the definition of [=?], this follows from
+
+        (n' =? n') = true.
+
+      which is immediate from the induction hypothesis.  _Qed_.
 *)
 (** [] *)
 
@@ -507,16 +537,31 @@ Definition manual_grade_for_add_comm_informal : option (nat*string) := None.
 Theorem add_shuffle3 : forall n m p : nat,
   n + (m + p) = m + (n + p).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m p.
+  rewrite -> add_assoc. rewrite -> add_assoc.
+  assert (H: n + m = m + n). { rewrite add_comm. reflexivity. }
+  rewrite -> H. reflexivity.
+Qed.
 
 (** Now prove commutativity of multiplication.  You will probably
     want to define and prove a "helper" theorem to be used
     in the proof of this one. Hint: what is [n * (1 + k)]? *)
 
+Theorem mul_m_Sn : forall m n : nat, m * (S n) = m + m * n.
+Proof.
+  intros m n.
+  induction m as [| m' IHm'].
+  - simpl. reflexivity.
+  - simpl. rewrite -> IHm'. rewrite -> add_shuffle3. reflexivity.
+Qed.
+
 Theorem mul_comm : forall m n : nat,
   m * n = n * m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros m n. induction m as [| m' IHm'].
+  - simpl. rewrite -> mul_0_r. reflexivity.
+  - simpl. rewrite -> IHm'. rewrite -> mul_m_Sn. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, optional (more_exercises)
