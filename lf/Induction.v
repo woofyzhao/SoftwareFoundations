@@ -723,7 +723,33 @@ Qed.
     want to change your original definitions to make the property
     easier to prove, feel free to do so! *)
 
-(* FILL IN HERE *)
+Inductive bin : Type :=
+  | Z
+  | B0 (n : bin)
+  | B1 (n : bin).
+
+Fixpoint incr (m:bin) : bin := 
+  match m with
+  | Z => B1 Z
+  | B0 x => B1 x
+  | B1 x => B0 (incr x)
+  end.
+
+Fixpoint bin_to_nat (m:bin) : nat :=
+  match m with
+  | Z => O
+  | B0 x => double (bin_to_nat x)
+  | B1 x => S (double (bin_to_nat x))
+  end.
+
+Theorem bin_to_nat_pres_incr : forall b : bin, 
+bin_to_nat (incr b) = S (bin_to_nat b).
+Proof.
+  induction b as [| b' IHb'| b' IHb'].
+  - simpl. reflexivity.
+  - simpl. reflexivity.
+  - simpl. rewrite IHb'. simpl. reflexivity.
+Qed.
 
 (* Do not modify the following line: *)
 Definition manual_grade_for_binary_commute : option (nat*string) := None.
@@ -738,8 +764,11 @@ Definition manual_grade_for_binary_commute : option (nat*string) := None.
     (a) First, write a function to convert natural numbers to binary
         numbers. *)
 
-Fixpoint nat_to_bin (n:nat) : bin
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint nat_to_bin (n:nat) : bin :=
+  match n with
+  | O => Z
+  | S n' => incr (nat_to_bin n')
+  end.
 
 (** Prove that, if we start with any [nat], convert it to binary, and
     convert it back, we get the same [nat] we started with.  (Hint: If
@@ -749,7 +778,10 @@ Fixpoint nat_to_bin (n:nat) : bin
 
 Theorem nat_bin_nat : forall n, bin_to_nat (nat_to_bin n) = n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  induction n as [| n'].
+  - simpl. reflexivity.
+  - simpl. rewrite bin_to_nat_pres_incr. rewrite IHn'. reflexivity.
+Qed.
 
 (* Do not modify the following line: *)
 Definition manual_grade_for_binary_inverse_a : option (nat*string) := None.
@@ -760,7 +792,9 @@ Definition manual_grade_for_binary_inverse_a : option (nat*string) := None.
         the same number we started with.  However, this is not the
         case!  Explain (in a comment) what the problem is. *)
 
-(* FILL IN HERE *)
+(* The problem is O in binary is not unique, like Z, B0 Z, B0 (B0 Z) etc. *)
+Compute nat_to_bin (bin_to_nat (B0 (B0 Z))). (* B0 (B0 Z) <> Z *)
+Compute nat_to_bin (bin_to_nat (B1 (B0 Z))). (* B0 (B0 Z) <> B1 Z *)
 
 (* Do not modify the following line: *)
 Definition manual_grade_for_binary_inverse_b : option (nat*string) := None.
@@ -777,7 +811,60 @@ Definition manual_grade_for_binary_inverse_b : option (nat*string) := None.
         proof -- that will allow the main proof to make progress.) Don't
         define this using [nat_to_bin] and [bin_to_nat]! *)
 
-(* FILL IN HERE *)
+Definition double_bin (b:bin) : bin := 
+  match b with
+  | Z => Z
+  | _ => B0 b
+  end.
+
+Fixpoint normalize (b:bin) : bin := 
+  match b with
+  | Z => Z
+  | B0 b' => double_bin (normalize b')
+  | B1 b' => B1 (normalize b')
+  end.
+
+Example norm_test_1: normalize (B0 (B0 (B0 Z))) = Z.
+Proof. simpl. reflexivity. Qed.
+
+Example norm_test_2: normalize (B1 (B0 (B1 (B0 (B0 (B0 Z)))))) = B1 (B0 (B1 Z)).
+Proof. simpl. reflexivity. Qed.
+
+Lemma incr_double: forall b:bin, B1 b = incr (double_bin b).
+Proof.
+  intros [].
+  - simpl. reflexivity.
+  - simpl. reflexivity.
+  - simpl. reflexivity.
+Qed.
+
+Lemma incr_gt_z: forall b:bin, double_bin (incr b) = B0 (incr b).
+Proof.
+  intros [].
+  - simpl. reflexivity.
+  - simpl. reflexivity.
+  - simpl. reflexivity.
+Qed.
+
+Lemma double_bin_eq: forall n:nat, 
+double_bin (nat_to_bin n) = nat_to_bin (double n).
+Proof.
+  induction n as [|n' IHn'].
+  - simpl. reflexivity.
+  - simpl. rewrite <- IHn'. rewrite <- incr_double. 
+    simpl. rewrite incr_gt_z. reflexivity.
+Qed.
+
+Theorem norm_bin : forall b : bin, 
+normalize b = nat_to_bin (bin_to_nat b).
+Proof.
+  induction b as [|b' IHb'|b' IHb'].
+  - simpl. reflexivity.
+  - simpl. rewrite IHb'. rewrite double_bin_eq. reflexivity.
+  - simpl. rewrite IHb'. rewrite <- double_bin_eq. 
+    rewrite incr_double. reflexivity.
+Qed.
+
 
 (* Do not modify the following line: *)
 Definition manual_grade_for_binary_inverse_c : option (nat*string) := None.

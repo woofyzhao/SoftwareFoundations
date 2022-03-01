@@ -1591,7 +1591,7 @@ Fixpoint bin_to_nat (m:bin) : nat :=
   match m with
   | Z => O
   | B0 x => (bin_to_nat x) * 2
-  | B1 x => (bin_to_nat x) * 2 + 1
+  | B1 x => S ((bin_to_nat x) * 2)
   end.
 (** The following "unit tests" of your increment and binary-to-unary
     functions should pass after you have defined those functions correctly.
