@@ -122,7 +122,7 @@ Abort.
 Theorem surjective_pairing : forall (p : natprod),
   p = (fst p, snd p).
 Proof.
-  intros p. destruct p as [n m]. simpl. reflexivity. Qed.
+  intros p. destruct p as [n m]. reflexivity. Qed.
 
 (** Notice that, unlike its behavior with [nat]s, where it
     generates two subgoals, [destruct] generates just one subgoal
@@ -133,14 +133,16 @@ Proof.
 Theorem snd_fst_is_swap : forall (p : natprod),
   (snd p, fst p) = swap_pair p.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros []. simpl. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, standard, optional (fst_swap_is_snd) *)
 Theorem fst_swap_is_snd : forall (p : natprod),
   fst (swap_pair p) = snd p.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros []. simpl. reflexivity.
+Qed.
 (** [] *)
 
 (* ################################################################# *)
@@ -290,7 +292,9 @@ Proof. reflexivity. Qed.
     what these functions should do. *)
 
 Fixpoint nonzeros (l:natlist) : natlist
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+  match l with
+  | nil => nil
+  | h :: t => if 
 
 Example test_nonzeros:
   nonzeros [0;1;0;2;3;0;0] = [1;2;3].
