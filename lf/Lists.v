@@ -291,36 +291,42 @@ Proof. reflexivity. Qed.
     [countoddmembers] below. Have a look at the tests to understand
     what these functions should do. *)
 
-Fixpoint nonzeros (l:natlist) : natlist
+Notation "x <> y" := (negb (eqb x y)) (at level 70) : nat_scope.
+
+Fixpoint nonzeros (l:natlist) : natlist := 
   match l with
   | nil => nil
-  | h :: t => if 
+  | h :: t => if h <> 0 then h :: (nonzeros t) else (nonzeros t)
+  end.
 
 Example test_nonzeros:
   nonzeros [0;1;0;2;3;0;0] = [1;2;3].
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 
-Fixpoint oddmembers (l:natlist) : natlist
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint oddmembers (l:natlist) : natlist := 
+  match l with
+  | nil => nil
+  | h :: t => if (odd h) then h :: (oddmembers t) else (oddmembers t)
+  end.
 
 Example test_oddmembers:
   oddmembers [0;1;0;2;3;0;0] = [1;3].
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 
-Definition countoddmembers (l:natlist) : nat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition countoddmembers (l:natlist) : nat := 
+  length (oddmembers l).
 
 Example test_countoddmembers1:
   countoddmembers [1;0;3;1;4;5] = 4.
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 
 Example test_countoddmembers2:
   countoddmembers [0;2;4] = 0.
-  (* FILL IN HERE *) Admitted.
+ Proof. simpl. reflexivity. Qed.
 
 Example test_countoddmembers3:
   countoddmembers nil = 0.
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, advanced (alternate)
@@ -337,24 +343,28 @@ Example test_countoddmembers3:
     of both lists at the same time.  One possible solution involves
     defining a new kind of pairs, but this is not the only way.)  *)
 
-Fixpoint alternate (l1 l2 : natlist) : natlist
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint alternate (l1 l2 : natlist) : natlist :=
+  match l1, l2 with
+  | _, nil => l1
+  | nil, _ => l2
+  | h1::t1, h2::t2 => h1::h2::(alternate t1 t2)
+  end.
 
 Example test_alternate1:
   alternate [1;2;3] [4;5;6] = [1;4;2;5;3;6].
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 
 Example test_alternate2:
   alternate [1] [4;5;6] = [1;4;5;6].
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 
 Example test_alternate3:
   alternate [1;2;3] [4] = [1;4;2;3].
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 
 Example test_alternate4:
   alternate [] [20;30] = [20;30].
-  (* FILL IN HERE *) Admitted.
+Proof. simpl. reflexivity. Qed.
 (** [] *)
 
 (* ----------------------------------------------------------------- *)
@@ -510,7 +520,7 @@ Proof.
   - (* l = nil *)
     reflexivity.
   - (* l = cons n l' *)
-    reflexivity.  Qed.
+    simpl. reflexivity.  Qed.
 
 (** Here, the [nil] case works because we've chosen to define
     [tl nil = nil]. Notice that the [as] annotation on the [destruct]
@@ -639,7 +649,7 @@ Theorem rev_length_firsttry : forall l : natlist,
 Proof.
   intros l. induction l as [| n l' IHl'].
   - (* l = nil *)
-    reflexivity.
+    simpl. reflexivity.
   - (* l = n :: l' *)
     (* This is the tricky case.  Let's begin as usual
        by simplifying. *)
